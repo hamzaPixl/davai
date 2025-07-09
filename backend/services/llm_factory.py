@@ -9,7 +9,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 
-from config.api_keys_config import api_keys_config
+from config.api_keys_config import init_api_keys_config
 from config.llm_config import LlmConfig
 from utils.logger import logger
 
@@ -17,17 +17,16 @@ from utils.logger import logger
 PROVIDERS = {
     "openai": {
         "models": ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"],
-        "config": {
-            "temperature": 0.7,
-            "response_format": {"type": "json_object"}
-        }
+        "config": {"temperature": 0.7, "response_format": {"type": "json_object"}},
     },
     "claude": {
-        "models": ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"],
-        "config": {
-            "temperature": 0.7
-        }
-    }
+        "models": [
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+        ],
+        "config": {"temperature": 0.7},
+    },
 }
 
 
@@ -45,6 +44,9 @@ def get_llm(config: LlmConfig) -> BaseChatModel:
         ValueError: If provider/model combination is not supported
         RuntimeError: If required API keys are missing
     """
+    # Initialize API keys config
+    api_keys_config = init_api_keys_config()
+
     provider = config.provider.lower()
 
     if provider not in PROVIDERS:
@@ -60,13 +62,22 @@ def get_llm(config: LlmConfig) -> BaseChatModel:
     if config.temperature is not None:
         base_config["temperature"] = config.temperature
 
+    # Handle response format properly for OpenAI
     if config.response_format is not None and provider == "openai":
         if config.response_format == "json_object":
-            base_config["response_format"] = {"type": "json_object"}
+            # Move response_format to model_kwargs to avoid the warning
+            if "model_kwargs" not in base_config:
+                base_config["model_kwargs"] = {}
+            base_config["model_kwargs"]["response_format"] = {"type": "json_object"}
+        # Remove from base config to avoid duplication
+        base_config.pop("response_format", None)
 
     # Add any additional model kwargs
     if config.model_kwargs:
-        base_config.update(config.model_kwargs)
+        if "model_kwargs" in base_config:
+            base_config["model_kwargs"].update(config.model_kwargs)
+        else:
+            base_config["model_kwargs"] = config.model_kwargs
 
     # Create LLM instance based on provider
     try:
@@ -77,7 +88,7 @@ def get_llm(config: LlmConfig) -> BaseChatModel:
             return ChatOpenAI(
                 model=config.model,
                 api_key=api_keys_config.openai_api_key,
-                **base_config
+                **base_config,
             )
 
         elif provider == "claude":
@@ -87,7 +98,7 @@ def get_llm(config: LlmConfig) -> BaseChatModel:
             return ChatAnthropic(
                 model=config.model,
                 api_key=api_keys_config.anthropic_api_key,
-                **base_config
+                **base_config,
             )
 
         else:
@@ -118,5 +129,5 @@ def get_default_config(provider: str = "openai") -> LlmConfig:
         model=default_model,
         provider=provider,
         temperature=default_config.get("temperature", 0.7),
-        response_format="json_object" if provider == "openai" else None
+        response_format="json_object" if provider == "openai" else None,
     )

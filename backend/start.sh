@@ -13,10 +13,13 @@ if [ ! -f .env ]; then
     echo ""
 fi
 
-# Check if virtual environment is active
+# Get the Python executable path
+PYTHON_PATH="/Users/hamzamounir/code/private/pixl/pocs/.venv/bin/python"
+UVICORN_PATH="/Users/hamzamounir/code/private/pixl/pocs/.venv/bin/uvicorn"
+
+# Check if virtual environment is active or use the venv path
 if [ -z "$VIRTUAL_ENV" ]; then
-    echo "💡 Tip: Consider activating a virtual environment first"
-    echo "   python -m venv venv && source venv/bin/activate"
+    echo "💡 Using virtual environment at: /Users/hamzamounir/code/private/pixl/pocs/.venv"
     echo ""
 fi
 
@@ -25,8 +28,8 @@ echo "🌐 Starting server..."
 echo "📚 API Docs will be available at: http://localhost:8000/docs"
 echo ""
 
-# Run with uvicorn directly
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level info
+# Run with uvicorn from venv
+$UVICORN_PATH main:app --host 0.0.0.0 --port 8000 --reload --log-level info
 
 echo ""
 echo "👋 Server stopped"

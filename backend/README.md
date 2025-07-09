@@ -39,21 +39,25 @@ ANTHROPIC_API_KEY=your_anthropic_api_key_here
 You have several options to start the server:
 
 #### Option 1: Direct uvicorn command
+
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### Option 2: Using the start script
+
 ```bash
 ./start.sh
 ```
 
 #### Option 3: Using Python main
+
 ```bash
 python main.py
 ```
 
 #### Option 4: Using the CLI script
+
 ```bash
 python run_server.py --help  # See all options
 python run_server.py --port 8080 --log-level debug

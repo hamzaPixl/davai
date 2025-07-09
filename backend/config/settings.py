@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     cors_methods: list[str] = ["*"]
     cors_headers: list[str] = ["*"]
 
+    # AI Provider API Keys
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    google_api_key: Optional[str] = None
+
     # Project Generation Settings
     max_questions: int = 10
     default_templates_path: Path = Path("../templates")

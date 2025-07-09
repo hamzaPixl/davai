@@ -16,16 +16,18 @@ async def lifespan(app: FastAPI):
     """Manage application lifespan events."""
     # Startup
     logger.info("🚀 Starting DAVAI POC API server")
-    
+
     # Create necessary directories
     settings.temp_storage_path.mkdir(exist_ok=True)
     settings.cache_storage_path.mkdir(exist_ok=True)
-    
+
     logger.info("🎉 DAVAI POC API server startup completed")
-    logger.info(f"📚 Visit http://{settings.api_host}:{settings.api_port}/docs for API documentation")
-    
+    logger.info(
+        f"📚 Visit http://{settings.api_host}:{settings.api_port}/docs for API documentation"
+    )
+
     yield
-    
+
     # Shutdown
     logger.info("🛑 Shutting down DAVAI POC API server...")
     logger.info("👋 DAVAI POC API server shutdown completed")
@@ -33,7 +35,7 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    
+
     # Create FastAPI app
     app = FastAPI(
         title="DAVAI - Complete Project Generator",
@@ -41,9 +43,9 @@ def create_app() -> FastAPI:
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
-        lifespan=lifespan
+        lifespan=lifespan,
     )
-    
+
     # Configure CORS
     app.add_middleware(
         CORSMiddleware,
@@ -52,8 +54,8 @@ def create_app() -> FastAPI:
         allow_methods=settings.cors_methods,
         allow_headers=settings.cors_headers,
     )
-    
+
     # Include API routes
     app.include_router(api_router, prefix="/api", tags=["API"])
-    
+
     return app

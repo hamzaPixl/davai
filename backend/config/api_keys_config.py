@@ -1,22 +1,31 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
+"""
+API Keys configuration that reads from the main settings.
+"""
 
 
-class ApiKeysConfig(BaseSettings):
+class ApiKeysConfig:
     """Configuration for API keys."""
 
-    # OpenAI API Key
-    openai_api_key: Optional[str] = None
-
-    # Anthropic API Key
-    anthropic_api_key: Optional[str] = None
-
-    # Google API Key
-    google_api_key: Optional[str] = None
-
-    class Config:
-        env_file = ".env"
-        env_prefix = ""
+    def __init__(self, main_settings):
+        self.openai_api_key = main_settings.openai_api_key
+        self.anthropic_api_key = main_settings.anthropic_api_key
+        self.google_api_key = main_settings.google_api_key
 
 
-api_keys_config = ApiKeysConfig()
+def get_api_keys_config():
+    """Get API keys configuration from main settings."""
+    from config.settings import settings
+
+    return ApiKeysConfig(settings)
+
+
+# Create the global instance
+api_keys_config = None
+
+
+def init_api_keys_config():
+    """Initialize the API keys configuration."""
+    global api_keys_config
+    if api_keys_config is None:
+        api_keys_config = get_api_keys_config()
+    return api_keys_config

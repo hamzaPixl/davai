@@ -1,0 +1,429 @@
+{
+  "info": {
+    "_postman_id": "davai-poc-collection",
+    "name": "DAVAI POC - Complete Project Generator API",
+    "description": "Comprehensive collection to test all DAVAI POC API endpoints for generating project documentation using AI agents",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "davai-poc"
+  },
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check if the API server is running and healthy"
+          },
+          "response": []
+        }
+      ],
+      "description": "Basic health and status endpoints"
+    },
+    {
+      "name": "Individual Steps",
+      "item": [
+        {
+          "name": "Generate Questions - Fitness App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-questions?project_idea=An AI-powered fitness coach that creates personalized workout plans based on user goals, available equipment, and fitness level",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-questions"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": "An AI-powered fitness coach that creates personalized workout plans based on user goals, available equipment, and fitness level"
+                }
+              ]
+            },
+            "description": "Generate clarifying questions for a fitness coach app project"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Questions - E-commerce",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-questions?project_idea=A sustainable fashion e-commerce platform that connects eco-conscious consumers with ethical clothing brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-questions"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": "A sustainable fashion e-commerce platform that connects eco-conscious consumers with ethical clothing brands"
+                }
+              ]
+            },
+            "description": "Generate clarifying questions for an e-commerce platform"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Questions - Fintech",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-questions?project_idea=A personal finance assistant that helps users budget, invest, and achieve financial goals through AI-powered recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-questions"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": "A personal finance assistant that helps users budget, invest, and achieve financial goals through AI-powered recommendations"
+                }
+              ]
+            },
+            "description": "Generate clarifying questions for a fintech app"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Documentation - Fitness App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-documentation?project_idea=An AI-powered fitness coach that creates personalized workout plans&questions=Who is your target audience?&questions=What are the key features you want to include?&questions=How many users do you expect initially?&questions=What is your team size and technical expertise?&questions=What is your budget and timeline?&questions=Do you have any technology preferences?&questions=What security requirements do you have?&questions=What integrations do you need?&questions=How will you measure success?&questions=What is your business model?&answers=Fitness enthusiasts aged 25-45 who want personalized workouts&answers=Personalized workout plans, progress tracking, AI coaching, nutrition advice&answers=Up to 10,000 users in the first year&answers=Team of 3 developers, 1 designer, 1 product manager&answers=$100,000 budget over 8 months&answers=React Native for mobile, Node.js backend, PostgreSQL database&answers=Standard app security, user data protection&answers=Integration with fitness wearables and nutrition tracking apps&answers=User engagement, workout completion rates, fitness goal achievement&answers=Freemium model with premium coaching features",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-documentation"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": "An AI-powered fitness coach that creates personalized workout plans"
+                },
+                {
+                  "key": "questions",
+                  "value": "Who is your target audience?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What are the key features you want to include?"
+                },
+                {
+                  "key": "questions",
+                  "value": "How many users do you expect initially?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What is your team size and technical expertise?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What is your budget and timeline?"
+                },
+                {
+                  "key": "questions",
+                  "value": "Do you have any technology preferences?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What security requirements do you have?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What integrations do you need?"
+                },
+                {
+                  "key": "questions",
+                  "value": "How will you measure success?"
+                },
+                {
+                  "key": "questions",
+                  "value": "What is your business model?"
+                },
+                {
+                  "key": "answers",
+                  "value": "Fitness enthusiasts aged 25-45 who want personalized workouts"
+                },
+                {
+                  "key": "answers",
+                  "value": "Personalized workout plans, progress tracking, AI coaching, nutrition advice"
+                },
+                {
+                  "key": "answers",
+                  "value": "Up to 10,000 users in the first year"
+                },
+                {
+                  "key": "answers",
+                  "value": "Team of 3 developers, 1 designer, 1 product manager"
+                },
+                {
+                  "key": "answers",
+                  "value": "$100,000 budget over 8 months"
+                },
+                {
+                  "key": "answers",
+                  "value": "React Native for mobile, Node.js backend, PostgreSQL database"
+                },
+                {
+                  "key": "answers",
+                  "value": "Standard app security, user data protection"
+                },
+                {
+                  "key": "answers",
+                  "value": "Integration with fitness wearables and nutrition tracking apps"
+                },
+                {
+                  "key": "answers",
+                  "value": "User engagement, workout completion rates, fitness goal achievement"
+                },
+                {
+                  "key": "answers",
+                  "value": "Freemium model with premium coaching features"
+                }
+              ]
+            },
+            "description": "Generate complete documentation for the fitness app with predefined questions and answers"
+          },
+          "response": []
+        }
+      ],
+      "description": "Individual workflow steps - generate questions and documentation separately"
+    },
+    {
+      "name": "Complete Workflows",
+      "item": [
+        {
+          "name": "Complete Workflow - Smart Home",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A smart home automation system that learns user preferences and optimizes energy usage through AI-powered device coordination\",\n  \"answers\": [\n    \"Homeowners aged 30-60 interested in energy efficiency and convenience\",\n    \"Automated lighting, climate control, security monitoring, energy optimization, voice control\",\n    \"Up to 100,000 connected homes initially\",\n    \"Team of 6 developers, 2 IoT specialists, 1 data scientist, 1 security expert\",\n    \"$500,000 budget over 18 months\",\n    \"Python backend, React dashboard, IoT protocols (Zigbee, Z-Wave), AWS cloud infrastructure\",\n    \"IoT security standards, data privacy compliance, encrypted communications\",\n    \"Integration with smart devices, utility companies, weather services, home insurance\",\n    \"Energy savings percentage, user satisfaction scores, device adoption rates\",\n    \"Hardware sales plus monthly subscription for cloud services and AI features\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/complete-workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complete-workflow"]
+            },
+            "description": "Run complete workflow for a smart home automation system"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Workflow - EdTech Platform",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"An AI-powered educational platform that adapts learning content to individual student needs and learning styles\",\n  \"answers\": [\n    \"Students aged 10-18, teachers, and educational institutions\",\n    \"Adaptive learning paths, progress tracking, AI tutoring, content creation tools, analytics dashboard\",\n    \"Up to 50,000 students and 5,000 teachers in the first year\",\n    \"Team of 8 developers, 2 AI specialists, 2 education experts, 1 UX designer\",\n    \"$300,000 budget over 12 months\",\n    \"React frontend, Python/Django backend, PostgreSQL, TensorFlow for AI, AWS hosting\",\n    \"COPPA compliance, student data protection, GDPR compliance for EU users\",\n    \"Integration with school management systems, video conferencing tools, assessment platforms\",\n    \"Student engagement, learning outcome improvements, teacher satisfaction, retention rates\",\n    \"Freemium for individual users, subscription tiers for schools and districts\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/complete-workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complete-workflow"]
+            },
+            "description": "Run complete workflow for an educational technology platform"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Workflow - Healthcare App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A telemedicine platform that connects patients with healthcare providers for virtual consultations and remote monitoring\",\n  \"answers\": [\n    \"Patients of all ages needing healthcare access, healthcare providers, medical institutions\",\n    \"Video consultations, appointment scheduling, prescription management, health records, payment processing\",\n    \"Up to 25,000 patients and 1,000 healthcare providers initially\",\n    \"Team of 10 developers, 2 security specialists, 1 healthcare compliance expert, 2 UX designers\",\n    \"$750,000 budget over 24 months\",\n    \"React Native for mobile, Node.js backend, MongoDB, WebRTC for video, FHIR standards\",\n    \"HIPAA compliance, end-to-end encryption, SOC 2 certification, FDA regulations for remote monitoring\",\n    \"Integration with EHR systems, pharmacy networks, insurance providers, wearable devices\",\n    \"Patient satisfaction, consultation completion rates, provider adoption, health outcome improvements\",\n    \"Transaction fees on consultations, subscription for providers, premium features for patients\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/complete-workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complete-workflow"]
+            },
+            "description": "Run complete workflow for a healthcare/telemedicine platform"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Workflow - Simple Example",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A simple task management app for small teams\",\n  \"answers\": [\n    \"Small teams of 5-15 people in startups and small businesses\",\n    \"Task creation, assignment, progress tracking, team collaboration, basic reporting\",\n    \"Up to 1,000 teams initially\",\n    \"Team of 2 developers, 1 designer\",\n    \"$25,000 budget over 4 months\",\n    \"React frontend, Node.js backend, PostgreSQL database\",\n    \"Basic authentication, data encryption, regular backups\",\n    \"Integration with Slack, Google Workspace, simple calendar apps\",\n    \"Team productivity, task completion rates, user retention\",\n    \"Monthly subscription per team with different tier options\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/complete-workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complete-workflow"]
+            },
+            "description": "Run complete workflow for a simple task management app - quick test case"
+          },
+          "response": []
+        }
+      ],
+      "description": "Complete workflow examples for different types of projects"
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Generate Questions - Empty Project Idea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-questions?project_idea=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-questions"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Test error handling with empty project idea"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Documentation - Mismatched Q&A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/generate-documentation?project_idea=Test project&questions=Question 1&questions=Question 2&answers=Answer 1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "generate-documentation"],
+              "query": [
+                {
+                  "key": "project_idea",
+                  "value": "Test project"
+                },
+                {
+                  "key": "questions",
+                  "value": "Question 1"
+                },
+                {
+                  "key": "questions",
+                  "value": "Question 2"
+                },
+                {
+                  "key": "answers",
+                  "value": "Answer 1"
+                }
+              ]
+            },
+            "description": "Test error handling when questions and answers don't match"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Workflow - Too Few Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A mobile app for food delivery\",\n  \"answers\": [\n    \"Only one answer\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/complete-workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complete-workflow"]
+            },
+            "description": "Test workflow with insufficient answers"
+          },
+          "response": []
+        }
+      ],
+      "description": "Error scenarios and edge cases for testing API robustness"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
