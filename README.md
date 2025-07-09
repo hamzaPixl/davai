@@ -8,6 +8,7 @@ This directory contains generic documentation templates and AI prompts for quick
 project-templates/
 ├── README.md                           # This file - template system guide
 ├── QUICK_START.md                      # Step-by-step workflow guide
+├── COMPLETE_PROJECT_GENERATOR.md       # 🆕 One-shot documentation generator
 ├── prompts/                            # AI prompts for generating each doc type
 │   ├── 01_project_overview_prompt.md   # Prompt for generating project overview
 │   ├── 02_architecture_prompt.md       # Prompt for system architecture
@@ -27,6 +28,18 @@ project-templates/
 ```
 
 ## 🎯 How to Use
+
+### 🚀 **Method 1: Complete Project Generator** (Recommended)
+
+Use `COMPLETE_PROJECT_GENERATOR.md` for the fastest, most consistent approach:
+
+1. **Provide your project idea** in 1-2 sentences
+2. **Answer clarifying questions** from the AI (8-10 questions about requirements, constraints, etc.)
+3. **Receive complete documentation** - all 7 files generated automatically and consistently
+
+**Benefits**: Single session, no missing details, consistent across all documents, ready for immediate development.
+
+### 📝 **Method 2: Step-by-Step Process** (Manual Control)
 
 ### Step 1: Project Definition
 

@@ -2,7 +2,26 @@
 
 Use this template system to rapidly define and document new AI projects for autonomous development.
 
-## 📝 Step-by-Step Workflow
+## � **NEW: Complete Project Generator** (Recommended)
+
+### **One-Shot Documentation Generation** (15-30 minutes total)
+
+Use the `COMPLETE_PROJECT_GENERATOR.md` for the fastest workflow:
+
+1. **Provide your project idea** (1-2 sentences)
+2. **Answer clarifying questions** (AI will ask 8-10 specific questions)
+3. **Receive complete documentation** (All 7 files generated automatically)
+
+```bash
+# Use the complete generator
+COMPLETE_PROJECT_GENERATOR.md → generates ALL documentation files
+```
+
+This approach ensures consistency across all documents and captures all necessary details in one interactive session.
+
+---
+
+## �📝 **Alternative: Step-by-Step Workflow** (Manual Process)
 
 ### 1. **Define Your Project** (15-30 minutes)
 
@@ -42,7 +61,7 @@ git add .
 git commit -m "Initial project documentation"
 ```
 
-### 4. **Enable Autonomous Development**
+### 4. **Enable Autonomous Development** (Both Methods)
 
 - Share repository with Claude Code
 - The comprehensive documentation enables immediate implementation
