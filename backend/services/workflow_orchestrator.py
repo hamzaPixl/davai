@@ -4,8 +4,12 @@ Manages the complete project documentation generation workflow.
 """
 
 import time
+import json
+from pathlib import Path
 from typing import List, Dict
+from datetime import datetime
 from config.llm_config import LlmConfig
+from config.settings import settings
 from services.llm_factory import get_default_config
 
 # Import models for type annotations
@@ -50,6 +54,10 @@ class WorkflowOrchestrator:
         self.project_rules_agent = ProjectRulesAgent(self.llm_config)
         self.claude_guide_agent = ClaudeGuideAgent(self.llm_config)
         self.readme_agent = ReadmeAgent(self.llm_config)
+
+        # Initialize output directory
+        self.output_dir = settings.temp_storage_path / "generated_docs"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     async def generate_questions(self, project_idea: str) -> Questions:
         """
@@ -458,6 +466,10 @@ class WorkflowOrchestrator:
                 )
             )
 
+            # Save all generated documentation to disk
+            logger.info("Saving all generated documentation to disk")
+            output_path = self.save_documentation_to_disk(all_documents, project_idea)
+
             total_duration = time.time() - start_time
 
             return WorkflowResult(
@@ -567,3 +579,84 @@ class WorkflowOrchestrator:
             questions=project_data.questions,
             answers=project_data.answers,
         )
+
+    def save_documentation_to_disk(
+        self, all_documents: Dict[str, str], project_idea: str = "project"
+    ):
+        """
+        Save all generated documentation to disk.
+
+        Args:
+            all_documents: Dictionary of all generated documents
+            project_idea: Original project idea for folder naming
+        """
+        # Create a sanitized folder name from project idea
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_name = "".join(
+            c for c in project_idea[:50] if c.isalnum() or c in (" ", "-", "_")
+        ).rstrip()
+        safe_name = safe_name.replace(" ", "_").lower()
+
+        # Use the configured output directory
+        project_dir = self.output_dir / f"{safe_name}_{timestamp}"
+        project_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save each document as a separate markdown file
+        for doc_name, content in all_documents.items():
+            # Ensure .md extension
+            filename = f"{doc_name}.md" if not doc_name.endswith(".md") else doc_name
+            file_path = project_dir / filename
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            logger.info(f"Saved document: {file_path}")
+
+        # Save metadata file with summary of all documents
+        metadata = {
+            "project_idea": project_idea,
+            "generated_at": datetime.now().isoformat(),
+            "total_documents": len(all_documents),
+            "document_list": list(all_documents.keys()),
+            "output_path": str(project_dir),
+        }
+
+        metadata_path = project_dir / "metadata.json"
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"📁 All documentation saved to: {project_dir}")
+        logger.info(
+            f"📄 Generated {len(all_documents)} files: {', '.join(all_documents.keys())}"
+        )
+
+        return str(project_dir)
+
+    def list_saved_projects(self) -> List[Dict[str, str]]:
+        """
+        List all saved projects with metadata.
+
+        Returns:
+            List of project metadata dictionaries
+        """
+        projects = []
+
+        if not self.output_dir.exists():
+            return projects
+
+        for project_folder in self.output_dir.iterdir():
+            if project_folder.is_dir():
+                metadata_file = project_folder / "metadata.json"
+                if metadata_file.exists():
+                    try:
+                        with open(metadata_file, "r", encoding="utf-8") as f:
+                            metadata = json.load(f)
+                        metadata["folder_name"] = project_folder.name
+                        metadata["folder_path"] = str(project_folder)
+                        projects.append(metadata)
+                    except Exception as e:
+                        logger.warning(
+                            f"Could not read metadata for {project_folder}: {e}"
+                        )
+
+        # Sort by generation time (newest first)
+        projects.sort(key=lambda x: x.get("generated_at", ""), reverse=True)
+        return projects

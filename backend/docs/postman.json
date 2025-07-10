@@ -1,0 +1,303 @@
+{
+  "info": {
+    "_postman_id": "davai-api-collection",
+    "name": "DAVAI API Collection",
+    "description": "Complete API collection for DAVAI - AI Documentation Generator\n\nThis collection contains all available endpoints for testing the DAVAI system including:\n- Health and status checks\n- Complete workflow execution\n- Individual agent endpoints\n\nBase URL: http://localhost:8000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+				},
+				{
+					"name": "System Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["status"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+    {
+      "name": "Workflow",
+      "item": [
+        {
+          "name": "Complete Workflow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers to share code snippets and collaborate\",\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers and small teams\",\n    \"Real-time collaboration needed\",\n    \"React, Node.js, MongoDB\",\n    \"Authentication, file sharing, real-time chat\",\n    \"High availability and scalability required\",\n    \"RESTful API with WebSocket support\",\n    \"AWS cloud deployment\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workflow/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workflow", "complete"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Saved Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/workflow/saved-projects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workflow", "saved-projects"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/workflow/saved-projects/social_media_platform_20250710_120000",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "workflow",
+                "saved-projects",
+                "social_media_platform_20250710_120000"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Agents",
+      "item": [
+        {
+          "name": "Question Generator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"A social media platform for developers to share code snippets and collaborate\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/question-generator/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "question-generator", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Context Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/context/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "context", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Architecture Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/architecture/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "architecture", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tech Stack Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tech-stack/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tech-stack", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Task Breakdown Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/task-breakdown/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "task-breakdown", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Project Rules Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/project-rules/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "project-rules", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Claude Guide Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/claude-guide/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "claude-guide", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "README Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers\",\n  \"questions\": [\n    \"What type of application?\",\n    \"Who is the target audience?\",\n    \"What are the key features?\"\n  ],\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers\",\n    \"Code sharing and collaboration\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/readme/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "readme", "generate"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ]
+}

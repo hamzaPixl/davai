@@ -74,4 +74,14 @@ def create_app() -> FastAPI:
     app.include_router(claude_guide_router, prefix="/api", tags=["Agents"])
     app.include_router(readme_router, prefix="/api", tags=["Agents"])
 
+    # Root health and status endpoints
+    @app.get("/health", tags=["System"])
+    async def health_check():
+        """Root health check endpoint."""
+        return {
+            "status": "healthy",
+            "message": "DAVAI API is running",
+            "version": "0.1.0",
+        }
+
     return app
