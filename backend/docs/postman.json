@@ -28,22 +28,22 @@
             }
           },
           "response": []
-				},
-				{
-					"name": "System Status",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/status",
-							"host": ["{{base_url}}"],
-							"path": ["status"]
-						}
-					},
-					"response": []
-				}
-			]
-		},
+        },
+        {
+          "name": "System Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Workflow",
       "item": [
