@@ -4,7 +4,6 @@ Manages the complete project documentation generation workflow.
 """
 
 import time
-import asyncio
 from typing import List, Dict
 from config.llm_config import LlmConfig
 from services.llm_factory import get_default_config
@@ -111,7 +110,16 @@ class WorkflowOrchestrator:
         self, project_idea: str, questions: List[str], answers: List[str]
     ) -> Documentation:
         """
-        Generate complete project documentation using all agents.
+        Generate complete project documentation using all agents in proper dependency order.
+
+        Workflow Dependencies:
+        1. Context (standalone)
+        2. Architecture (depends on Context)
+        3. Tech Stack (depends on Context + Architecture)
+        4. Task Breakdown (depends on Context + Architecture + Tech Stack)
+        5. Project Rules (depends on all previous outputs)
+        6. Claude Guide (depends on all previous outputs)
+        7. README (depends on all previous outputs)
 
         Args:
             project_idea: Original project idea
@@ -121,7 +129,7 @@ class WorkflowOrchestrator:
         Returns:
             Generated documentation
         """
-        logger.info("Generating complete project documentation")
+        logger.info("Generating complete project documentation with dependency chain")
 
         if len(questions) != len(answers):
             raise ValueError("Number of questions and answers must match")
@@ -130,23 +138,90 @@ class WorkflowOrchestrator:
             project_idea=project_idea, questions=questions, answers=answers
         )
 
-        # Run all documentation agents in parallel
-        tasks = [
-            self.generate_context(project_data),
-            self.generate_architecture(project_data),
-            self.generate_tech_stack(project_data),
-            self.generate_task_breakdown(project_data),
-            self.generate_project_rules(project_data),
-            self.generate_claude_guide(project_data),
-            self.generate_readme(project_data),
-        ]
-
-        results = await asyncio.gather(*tasks)
-
-        # Combine all documentation
         all_documents = {}
-        for result in results:
-            all_documents.update(result)
+
+        # Step 1: Generate context (no dependencies)
+        logger.info("Step 1: Generating context documentation")
+        context_docs = await self.generate_context(project_data)
+        all_documents.update(context_docs)
+
+        # Step 2: Generate architecture (depends on context)
+        logger.info("Step 2: Generating architecture documentation (with context)")
+        enhanced_project_data = self.enhance_project_data_with_context(
+            project_data, context_docs
+        )
+        architecture_docs = await self.generate_architecture(enhanced_project_data)
+        all_documents.update(architecture_docs)
+
+        # Step 3: Generate tech stack (depends on context + architecture)
+        logger.info(
+            "Step 3: Generating tech stack documentation (with context + architecture)"
+        )
+        enhanced_project_data = self.enhance_project_data_with_docs(
+            project_data, {"context": context_docs, "architecture": architecture_docs}
+        )
+        tech_stack_docs = await self.generate_tech_stack(enhanced_project_data)
+        all_documents.update(tech_stack_docs)
+
+        # Step 4: Generate task breakdown (depends on context + architecture + tech stack)
+        logger.info(
+            "Step 4: Generating task breakdown (with context + architecture + tech stack)"
+        )
+        enhanced_project_data = self.enhance_project_data_with_docs(
+            project_data,
+            {
+                "context": context_docs,
+                "architecture": architecture_docs,
+                "tech_stack": tech_stack_docs,
+            },
+        )
+        task_breakdown_docs = await self.generate_task_breakdown(enhanced_project_data)
+        all_documents.update(task_breakdown_docs)
+
+        # Step 5: Generate project rules (depends on all previous)
+        logger.info("Step 5: Generating project rules (with all previous outputs)")
+        enhanced_project_data = self.enhance_project_data_with_docs(
+            project_data,
+            {
+                "context": context_docs,
+                "architecture": architecture_docs,
+                "tech_stack": tech_stack_docs,
+                "task_breakdown": task_breakdown_docs,
+            },
+        )
+        project_rules_docs = await self.generate_project_rules(enhanced_project_data)
+        all_documents.update(project_rules_docs)
+
+        # Step 6: Generate Claude guide (depends on all previous)
+        logger.info("Step 6: Generating Claude guide (with all previous outputs)")
+        enhanced_project_data = self.enhance_project_data_with_docs(
+            project_data,
+            {
+                "context": context_docs,
+                "architecture": architecture_docs,
+                "tech_stack": tech_stack_docs,
+                "task_breakdown": task_breakdown_docs,
+                "project_rules": project_rules_docs,
+            },
+        )
+        claude_guide_docs = await self.generate_claude_guide(enhanced_project_data)
+        all_documents.update(claude_guide_docs)
+
+        # Step 7: Generate README (depends on all previous)
+        logger.info("Step 7: Generating README (with all previous outputs)")
+        enhanced_project_data = self.enhance_project_data_with_docs(
+            project_data,
+            {
+                "context": context_docs,
+                "architecture": architecture_docs,
+                "tech_stack": tech_stack_docs,
+                "task_breakdown": task_breakdown_docs,
+                "project_rules": project_rules_docs,
+                "claude_guide": claude_guide_docs,
+            },
+        )
+        readme_docs = await self.generate_readme(enhanced_project_data)
+        all_documents.update(readme_docs)
 
         logger.info(f"Generated {len(all_documents)} documentation files")
         return Documentation(documents=all_documents)
@@ -155,21 +230,31 @@ class WorkflowOrchestrator:
         self, project_idea: str, answers: List[str]
     ) -> WorkflowResult:
         """
-        Run the complete workflow: generate questions then documentation.
+        Run the complete workflow with proper agent dependencies.
+
+        Workflow Steps:
+        1. Generate clarifying questions
+        2. Generate context (standalone)
+        3. Generate architecture (with context)
+        4. Generate tech stack (with context + architecture)
+        5. Generate task breakdown (with context + architecture + tech stack)
+        6. Generate project rules (with all previous)
+        7. Generate Claude guide (with all previous)
+        8. Generate README (with all previous)
 
         Args:
             project_idea: Brief description of the project
             answers: User answers to clarifying questions
 
         Returns:
-            Complete workflow result
+            Complete workflow result with detailed steps
         """
         start_time = time.time()
         steps = []
 
         try:
             # Step 1: Generate questions
-            step_start = time.time()
+            logger.info("Workflow Step 1: Generating clarifying questions")
             questions = await self.generate_questions(project_idea)
 
             steps.append(
@@ -181,20 +266,194 @@ class WorkflowOrchestrator:
                 )
             )
 
-            # Step 2: Generate documentation
-            documentation = await self.generate_all_documentation(
-                project_idea, questions.questions, answers
+            # Create base project data
+            project_data = ProjectData(
+                project_idea=project_idea,
+                questions=questions.questions,
+                answers=answers,
             )
+
+            all_documents = {}
+
+            # Step 2: Generate context (no dependencies)
+            logger.info("Workflow Step 2: Generating context documentation")
+            context_docs = await self.generate_context(project_data)
+            all_documents.update(context_docs)
 
             steps.append(
                 WorkflowStep(
-                    step_name="generate_documentation",
+                    step_name="generate_context",
+                    input_data={"project_data": "project_idea + questions + answers"},
+                    output_data={"documents": list(context_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 3: Generate architecture (with context)
+            logger.info("Workflow Step 3: Generating architecture (with context)")
+            enhanced_project_data = self.enhance_project_data_with_context(
+                project_data, context_docs
+            )
+            architecture_docs = await self.generate_architecture(enhanced_project_data)
+            all_documents.update(architecture_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_architecture",
+                    input_data={"dependencies": ["context"]},
+                    output_data={"documents": list(architecture_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 4: Generate tech stack (with context + architecture)
+            logger.info(
+                "Workflow Step 4: Generating tech stack (with context + architecture)"
+            )
+            enhanced_project_data = self.enhance_project_data_with_docs(
+                project_data,
+                {"context": context_docs, "architecture": architecture_docs},
+            )
+            tech_stack_docs = await self.generate_tech_stack(enhanced_project_data)
+            all_documents.update(tech_stack_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_tech_stack",
+                    input_data={"dependencies": ["context", "architecture"]},
+                    output_data={"documents": list(tech_stack_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 5: Generate task breakdown (with context + architecture + tech stack)
+            logger.info(
+                "Workflow Step 5: Generating task breakdown (with context + architecture + tech stack)"
+            )
+            enhanced_project_data = self.enhance_project_data_with_docs(
+                project_data,
+                {
+                    "context": context_docs,
+                    "architecture": architecture_docs,
+                    "tech_stack": tech_stack_docs,
+                },
+            )
+            task_breakdown_docs = await self.generate_task_breakdown(
+                enhanced_project_data
+            )
+            all_documents.update(task_breakdown_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_task_breakdown",
                     input_data={
-                        "project_idea": project_idea,
-                        "questions": questions.questions,
-                        "answers": answers,
+                        "dependencies": ["context", "architecture", "tech_stack"]
                     },
-                    output_data={"documents": list(documentation.documents.keys())},
+                    output_data={"documents": list(task_breakdown_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 6: Generate project rules (with all previous)
+            logger.info(
+                "Workflow Step 6: Generating project rules (with all previous outputs)"
+            )
+            enhanced_project_data = self.enhance_project_data_with_docs(
+                project_data,
+                {
+                    "context": context_docs,
+                    "architecture": architecture_docs,
+                    "tech_stack": tech_stack_docs,
+                    "task_breakdown": task_breakdown_docs,
+                },
+            )
+            project_rules_docs = await self.generate_project_rules(
+                enhanced_project_data
+            )
+            all_documents.update(project_rules_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_project_rules",
+                    input_data={
+                        "dependencies": [
+                            "context",
+                            "architecture",
+                            "tech_stack",
+                            "task_breakdown",
+                        ]
+                    },
+                    output_data={"documents": list(project_rules_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 7: Generate Claude guide (with all previous)
+            logger.info(
+                "Workflow Step 7: Generating Claude guide (with all previous outputs)"
+            )
+            enhanced_project_data = self.enhance_project_data_with_docs(
+                project_data,
+                {
+                    "context": context_docs,
+                    "architecture": architecture_docs,
+                    "tech_stack": tech_stack_docs,
+                    "task_breakdown": task_breakdown_docs,
+                    "project_rules": project_rules_docs,
+                },
+            )
+            claude_guide_docs = await self.generate_claude_guide(enhanced_project_data)
+            all_documents.update(claude_guide_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_claude_guide",
+                    input_data={
+                        "dependencies": [
+                            "context",
+                            "architecture",
+                            "tech_stack",
+                            "task_breakdown",
+                            "project_rules",
+                        ]
+                    },
+                    output_data={"documents": list(claude_guide_docs.keys())},
+                    success=True,
+                )
+            )
+
+            # Step 8: Generate README (with all previous)
+            logger.info(
+                "Workflow Step 8: Generating README (with all previous outputs)"
+            )
+            enhanced_project_data = self.enhance_project_data_with_docs(
+                project_data,
+                {
+                    "context": context_docs,
+                    "architecture": architecture_docs,
+                    "tech_stack": tech_stack_docs,
+                    "task_breakdown": task_breakdown_docs,
+                    "project_rules": project_rules_docs,
+                    "claude_guide": claude_guide_docs,
+                },
+            )
+            readme_docs = await self.generate_readme(enhanced_project_data)
+            all_documents.update(readme_docs)
+
+            steps.append(
+                WorkflowStep(
+                    step_name="generate_readme",
+                    input_data={
+                        "dependencies": [
+                            "context",
+                            "architecture",
+                            "tech_stack",
+                            "task_breakdown",
+                            "project_rules",
+                            "claude_guide",
+                        ]
+                    },
+                    output_data={"documents": list(readme_docs.keys())},
                     success=True,
                 )
             )
@@ -204,18 +463,18 @@ class WorkflowOrchestrator:
             return WorkflowResult(
                 project_idea=project_idea,
                 steps=steps,
-                final_documentation=documentation.documents,
+                final_documentation=all_documents,
                 success=True,
                 total_duration=total_duration,
             )
 
-        except Exception as e:
-            logger.error(f"Workflow failed: {e}")
+        except ValueError as e:
+            logger.error(f"Workflow validation error: {e}")
 
             # Add failed step
             steps.append(
                 WorkflowStep(
-                    step_name="workflow_failure",
+                    step_name="workflow_validation_failure",
                     input_data={"project_idea": project_idea},
                     output_data={},
                     success=False,
@@ -232,3 +491,79 @@ class WorkflowOrchestrator:
                 success=False,
                 total_duration=total_duration,
             )
+        except RuntimeError as e:
+            logger.error(f"Workflow runtime error: {e}")
+
+            # Add failed step
+            steps.append(
+                WorkflowStep(
+                    step_name="workflow_runtime_failure",
+                    input_data={"project_idea": project_idea},
+                    output_data={},
+                    success=False,
+                    error_message=str(e),
+                )
+            )
+
+            total_duration = time.time() - start_time
+
+            return WorkflowResult(
+                project_idea=project_idea,
+                steps=steps,
+                final_documentation=None,
+                success=False,
+                total_duration=total_duration,
+            )
+
+    def enhance_project_data_with_context(
+        self, project_data: ProjectData, context_docs: Dict[str, str]
+    ) -> ProjectData:
+        """
+        Enhance project data with context information for subsequent agents.
+
+        Args:
+            project_data: Original project data
+            context_docs: Generated context documentation
+
+        Returns:
+            Enhanced project data with context included
+        """
+        # Create enhanced project data that includes context in the project idea
+        context_summary = ""
+        if "context.md" in context_docs:
+            context_summary = f"\n\nCONTEXT ANALYSIS:\n{context_docs['context.md']}"
+
+        enhanced_idea = f"{project_data.project_idea}{context_summary}"
+
+        return ProjectData(
+            project_idea=enhanced_idea,
+            questions=project_data.questions,
+            answers=project_data.answers,
+        )
+
+    def enhance_project_data_with_docs(
+        self, project_data: ProjectData, previous_docs: Dict[str, Dict[str, str]]
+    ) -> ProjectData:
+        """
+        Enhance project data with all previous agent outputs.
+
+        Args:
+            project_data: Original project data
+            previous_docs: Dictionary of previous agent outputs by category
+
+        Returns:
+            Enhanced project data with all previous outputs included
+        """
+        # Combine all previous documentation into context
+        combined_context = f"{project_data.project_idea}\n\n"
+
+        for doc_type, docs in previous_docs.items():
+            combined_context += f"\n=== {doc_type.upper()} DOCUMENTATION ===\n"
+            for filename, content in docs.items():
+                combined_context += f"\n--- {filename} ---\n{content}\n"
+
+        return ProjectData(
+            project_idea=combined_context,
+            questions=project_data.questions,
+            answers=project_data.answers,
+        )

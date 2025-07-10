@@ -5,6 +5,7 @@
 The DAVAI backend exposes RESTful endpoints for both individual agent execution and complete workflow orchestration.
 
 ## Base URL
+
 ```
 http://localhost:8000/api
 ```
@@ -18,6 +19,7 @@ http://localhost:8000/api
 **Description**: Executes the complete documentation generation workflow from project idea to final documentation package.
 
 **Request Body**:
+
 ```json
 {
   "project_idea": {
@@ -35,14 +37,15 @@ http://localhost:8000/api
 ```
 
 **Response**:
+
 ```json
 {
   "project_idea": "A social media platform for developers",
   "steps": [
     {
       "step_name": "question_generation",
-      "input_data": {"idea": "..."},
-      "output_data": {"questions": ["..."]},
+      "input_data": { "idea": "..." },
+      "output_data": { "questions": ["..."] },
       "success": true,
       "error_message": null
     }
@@ -65,9 +68,20 @@ http://localhost:8000/api
 
 **Endpoint**: `POST /workflow/generate-all-documentation`
 
-**Description**: Generates all documentation types in parallel given existing project data.
+**Description**: Generates all documentation types in sequential dependency order given existing project data. Each agent builds upon the outputs of previous agents.
+
+**Sequential Execution Order**:
+
+1. Context Agent (standalone)
+2. Architecture Agent (with context)
+3. Tech Stack Agent (with context + architecture)
+4. Task Breakdown Agent (with context + architecture + tech stack)
+5. Project Rules Agent (with all previous outputs)
+6. Claude Guide Agent (with all previous outputs)
+7. README Agent (with all previous outputs)
 
 **Request Body**:
+
 ```json
 {
   "project_idea": "A social media platform for developers",
@@ -85,6 +99,7 @@ http://localhost:8000/api
 ```
 
 **Response**:
+
 ```json
 {
   "documents": {
@@ -106,6 +121,7 @@ http://localhost:8000/api
 **Description**: Checks the health status of the workflow service.
 
 **Response**:
+
 ```json
 {
   "status": "healthy",
@@ -123,6 +139,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Endpoint**: `POST /question-generator/generate`
 
 **Request Body**:
+
 ```json
 {
   "idea": "A social media platform for developers",
@@ -131,6 +148,7 @@ Each agent can be executed independently for testing or regenerating specific do
 ```
 
 **Response**:
+
 ```json
 {
   "questions": [
@@ -148,15 +166,20 @@ Each agent can be executed independently for testing or regenerating specific do
 **Endpoint**: `POST /context/generate`
 
 **Request Body**:
+
 ```json
 {
   "project_idea": "A social media platform for developers",
-  "questions": ["What type of application...", "Who is your target audience..."],
+  "questions": [
+    "What type of application...",
+    "Who is your target audience..."
+  ],
   "answers": ["Web application...", "Individual developers..."]
 }
 ```
 
 **Response**:
+
 ```json
 {
   "context.md": "# Project Context\n\n## Problem Statement\n..."
@@ -170,6 +193,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "architecture.md": "# System Architecture\n\n## Overview\n..."
@@ -183,6 +207,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "tech-stack-selection.md": "# Technology Stack Selection\n\n## Frontend\n..."
@@ -196,6 +221,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "TASK_BREAKDOWN.md": "# Task Breakdown\n\n## Phase 1: Foundation\n..."
@@ -209,6 +235,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "project-rules.md": "# Project Rules and Guidelines\n\n## Coding Standards\n..."
@@ -222,6 +249,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "CLAUDE.md": "# AI Development Guide\n\n## Working with Claude\n..."
@@ -235,6 +263,7 @@ Each agent can be executed independently for testing or regenerating specific do
 **Request Body**: Same as Context Agent
 
 **Response**:
+
 ```json
 {
   "README.md": "# Developer Social Platform\n\n## Overview\n..."
@@ -246,6 +275,7 @@ Each agent can be executed independently for testing or regenerating specific do
 All endpoints return consistent error responses:
 
 ### 400 Bad Request
+
 ```json
 {
   "detail": "Invalid input data",
@@ -259,6 +289,7 @@ All endpoints return consistent error responses:
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "detail": "Internal server error",
@@ -276,49 +307,90 @@ sequenceDiagram
     participant API
     participant QuestionGen
     participant User
-    participant Agents
+    participant Context
+    participant Architecture
+    participant TechStack
+    participant TaskBreakdown
+    participant ProjectRules
+    participant ClaudeGuide
     participant README
 
     Client->>API: POST /workflow/complete
     API->>QuestionGen: Generate questions
     QuestionGen-->>API: Questions list
     API-->>Client: Questions for user
-    
+
     Note over Client,User: User answers questions
-    
+
     Client->>API: Submit answers
-    API->>Agents: Parallel execution
-    
-    par Context Agent
-        Agents->>Agents: Generate context.md
-    and Architecture Agent
-        Agents->>Agents: Generate architecture.md
-    and Tech Stack Agent
-        Agents->>Agents: Generate tech-stack.md
-    and Task Breakdown Agent
-        Agents->>Agents: Generate task-breakdown.md
-    and Project Rules Agent
-        Agents->>Agents: Generate project-rules.md
-    and Claude Guide Agent
-        Agents->>Agents: Generate CLAUDE.md
-    end
-    
-    Agents-->>API: All documentation
-    API->>README: Generate final README
+
+    Note over API: Sequential Agent Execution with Dependencies
+
+    API->>Context: 1. Generate context (standalone)
+    Context-->>API: context.md
+
+    API->>Architecture: 2. Generate architecture (with context)
+    Architecture-->>API: architecture.md
+
+    API->>TechStack: 3. Generate tech stack (with context + architecture)
+    TechStack-->>API: tech-stack-selection.md
+
+    API->>TaskBreakdown: 4. Generate tasks (with context + arch + tech)
+    TaskBreakdown-->>API: TASK_BREAKDOWN.md
+
+    API->>ProjectRules: 5. Generate rules (with all previous)
+    ProjectRules-->>API: project-rules.md
+
+    API->>ClaudeGuide: 6. Generate guide (with all previous)
+    ClaudeGuide-->>API: CLAUDE.md
+
+    API->>README: 7. Generate README (with all previous)
     README-->>API: README.md
+
     API-->>Client: Complete documentation package
 ```
 
-### Parallel Documentation Generation
+### Sequential Documentation Generation
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant API
-    participant Agents
+    participant Context
+    participant Architecture
+    participant TechStack
+    participant TaskBreakdown
+    participant ProjectRules
+    participant ClaudeGuide
+    participant README
 
     Client->>API: POST /workflow/generate-all-documentation
-    
+
+    Note over API: Sequential Execution with Dependency Chain
+
+    API->>Context: 1. Generate context
+    Context-->>API: context.md
+
+    API->>Architecture: 2. Generate architecture (enhanced with context)
+    Architecture-->>API: architecture.md
+
+    API->>TechStack: 3. Generate tech stack (enhanced with context + arch)
+    TechStack-->>API: tech-stack-selection.md
+
+    API->>TaskBreakdown: 4. Generate tasks (enhanced with context + arch + tech)
+    TaskBreakdown-->>API: TASK_BREAKDOWN.md
+
+    API->>ProjectRules: 5. Generate rules (enhanced with all previous)
+    ProjectRules-->>API: project-rules.md
+
+    API->>ClaudeGuide: 6. Generate guide (enhanced with all previous)
+    ClaudeGuide-->>API: CLAUDE.md
+
+    API->>README: 7. Generate README (enhanced with all previous)
+    README-->>API: README.md
+
+    API-->>Client: Complete documentation package
+
     par Context Agent
         API->>Agents: Generate context
     and Architecture Agent
@@ -334,7 +406,7 @@ sequenceDiagram
     and README Agent
         API->>Agents: Generate README
     end
-    
+
     Agents-->>API: All documentation
     API-->>Client: Complete documentation package
 ```
@@ -355,6 +427,7 @@ Agents can be configured with different LLM providers:
 ```
 
 Supported providers:
+
 - `openai` (GPT-3.5, GPT-4)
 - `anthropic` (Claude 3 Haiku, Sonnet, Opus)
 - `google` (Gemini Pro)
@@ -362,6 +435,7 @@ Supported providers:
 ### API Keys
 
 Required environment variables:
+
 ```bash
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
@@ -377,6 +451,7 @@ GOOGLE_API_KEY=your_google_key
 ## Monitoring
 
 All endpoints provide execution metrics:
+
 - Response time
 - Token usage
 - Success/failure rates
