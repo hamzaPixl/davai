@@ -264,24 +264,26 @@ class WorkflowOrchestrator:
         return Documentation(documents=all_documents)
 
     async def run_complete_workflow(
-        self, project_idea: str, answers: List[str]
+        self, project_idea: str, answers: List[str], include_suggestions: bool = False
     ) -> WorkflowResult:
         """
         Run the complete workflow with proper agent dependencies.
 
         Workflow Steps:
         1. Generate clarifying questions
-        2. Generate context (standalone)
-        3. Generate architecture (with context)
-        4. Generate tech stack (with context + architecture)
-        5. Generate task breakdown (with context + architecture + tech stack)
-        6. Generate project rules (with all previous)
-        7. Generate Claude guide (with all previous)
-        8. Generate README (with all previous)
+        2. [Optional] Generate suggestions (if include_suggestions=True)
+        3. Generate context (standalone)
+        4. Generate architecture (with context)
+        5. Generate tech stack (with context + architecture)
+        6. Generate task breakdown (with context + architecture + tech stack)
+        7. Generate project rules (with all previous)
+        8. Generate Claude guide (with all previous)
+        9. Generate README (with all previous)
 
         Args:
             project_idea: Brief description of the project
             answers: User answers to clarifying questions
+            include_suggestions: Whether to include suggestion generation step
 
         Returns:
             Complete workflow result with detailed steps
@@ -303,6 +305,30 @@ class WorkflowOrchestrator:
                 )
             )
 
+            # Step 2: Generate suggestions (optional)
+            suggestions = None
+            if include_suggestions:
+                logger.info("Workflow Step 2: Generating suggested answers")
+                suggestion_input = SuggestionInput(
+                    project_idea=project_idea, questions=questions.questions
+                )
+                suggestions = await self.generate_suggestions(suggestion_input)
+
+                steps.append(
+                    WorkflowStep(
+                        step_name="generate_suggestions",
+                        input_data={
+                            "project_idea": project_idea,
+                            "questions": questions.questions,
+                        },
+                        output_data={
+                            "suggested_answers": suggestions.suggested_answers,
+                            "reasoning": suggestions.reasoning,
+                        },
+                        success=True,
+                    )
+                )
+
             # Create base project data
             project_data = ProjectData(
                 project_idea=project_idea,
@@ -312,8 +338,9 @@ class WorkflowOrchestrator:
 
             all_documents = {}
 
-            # Step 2: Generate context (no dependencies)
-            logger.info("Workflow Step 2: Generating context documentation")
+            # Step 3: Generate context (no dependencies)
+            step_num = 3 if include_suggestions else 2
+            logger.info(f"Workflow Step {step_num}: Generating context documentation")
             context_docs = await self.generate_context(project_data)
             all_documents.update(context_docs)
 

@@ -21,7 +21,7 @@ async def complete_workflow(request: CompleteWorkflowRequest) -> WorkflowResult:
     Run the complete workflow: generate questions then documentation.
 
     Args:
-        request: Complete workflow request with project_idea and answers
+        request: Complete workflow request with project_idea, answers, and optional suggestion generation
 
     Returns:
         Complete workflow result with all documentation
@@ -30,8 +30,11 @@ async def complete_workflow(request: CompleteWorkflowRequest) -> WorkflowResult:
         logger.info(
             f"Running complete workflow for project: {request.project_idea[:100]}..."
         )
+        if request.include_suggestions:
+            logger.info("Including suggestion generation in workflow")
+
         result = await orchestrator.run_complete_workflow(
-            request.project_idea, request.answers
+            request.project_idea, request.answers, request.include_suggestions
         )
         return result
     except Exception as e:

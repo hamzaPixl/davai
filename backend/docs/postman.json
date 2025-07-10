@@ -126,7 +126,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"project_idea\": \"A social media platform for developers to share code snippets and collaborate\",\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers and small teams\",\n    \"Real-time collaboration needed\",\n    \"React, Node.js, MongoDB\",\n    \"Authentication, file sharing, real-time chat\",\n    \"High availability and scalability required\",\n    \"RESTful API with WebSocket support\",\n    \"AWS cloud deployment\"\n  ]\n}"
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers to share code snippets and collaborate\",\n  \"answers\": [\n    \"Web application\",\n    \"Individual developers and small teams\",\n    \"Real-time collaboration needed\",\n    \"React, Node.js, MongoDB\",\n    \"Authentication, file sharing, real-time chat\",\n    \"High availability and scalability required\",\n    \"RESTful API with WebSocket support\",\n    \"AWS cloud deployment\"\n  ],\n  \"include_suggestions\": false\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/workflow/complete",
@@ -194,6 +194,92 @@
                 "saved-projects",
                 "social_media_platform_20250710_120000"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Workflow with Suggestions - QA Agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has all required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('final_documentation');",
+                  "    pm.expect(jsonData).to.have.property('project_idea');",
+                  "    pm.expect(jsonData).to.have.property('success');",
+                  "    pm.expect(jsonData).to.have.property('steps');",
+                  "    pm.expect(jsonData).to.have.property('total_duration');",
+                  "});",
+                  "",
+                  "pm.test(\"Workflow completed successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Suggestions step is included\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var suggestionStep = jsonData.steps.find(step => step.step_name === 'generate_suggestions');",
+                  "    pm.expect(suggestionStep).to.not.be.undefined;",
+                  "    pm.expect(suggestionStep.success).to.be.true;",
+                  "    pm.expect(suggestionStep.output_data).to.have.property('suggested_answers');",
+                  "    pm.expect(suggestionStep.output_data).to.have.property('reasoning');",
+                  "});",
+                  "",
+                  "pm.test(\"All documentation files are generated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var docs = jsonData.final_documentation;",
+                  "    ",
+                  "    // Check for required documentation files",
+                  "    var requiredFiles = [",
+                  "        'context.md',",
+                  "        'architecture.md', ",
+                  "        'tech-stack-selection.md',",
+                  "        'TASK_BREAKDOWN.md',",
+                  "        'project-rules.md',",
+                  "        'CLAUDE.md',",
+                  "        'README.md'",
+                  "    ];",
+                  "    ",
+                  "    requiredFiles.forEach(function(file) {",
+                  "        pm.expect(docs).to.have.property(file);",
+                  "        pm.expect(docs[file]).to.be.a('string');",
+                  "        pm.expect(docs[file].length).to.be.greaterThan(100);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"QA Agent project idea is preserved\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.project_idea).to.include('QA agent');",
+                  "    pm.expect(jsonData.project_idea).to.include('API');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"QA agent for in-house API at startups\",\n  \"answers\": [\n    \"Web-based testing tool with API integration\",\n    \"QA engineers, developers, and DevOps teams at startups\",\n    \"Automated API testing, endpoint validation, performance monitoring\",\n    \"Python, FastAPI, React, PostgreSQL, Docker\",\n    \"Should handle 1000+ API endpoints with real-time monitoring\",\n    \"Yes, real-time test execution and alerting are critical\",\n    \"API security testing, data validation, compliance with testing standards\",\n    \"Cloud deployment with CI/CD integration for automated testing\"\n  ],\n  \"include_suggestions\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workflow/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workflow", "complete"]
             }
           },
           "response": []

@@ -11,3 +11,7 @@ class CompleteWorkflowRequest(BaseModel):
 
     project_idea: str = Field(..., description="Brief description of the project idea")
     answers: List[str] = Field(..., description="User answers to clarifying questions")
+    include_suggestions: bool = Field(
+        False,
+        description="Whether to include suggestion generation step in the workflow",
+    )
