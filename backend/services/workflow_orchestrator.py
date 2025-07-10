@@ -15,6 +15,8 @@ from services.llm_factory import get_json_config, get_text_config
 # Import models for type annotations
 from models.project_idea import ProjectIdea
 from models.questions import Questions
+from models.suggestions import Suggestions
+from models.suggestion_input import SuggestionInput
 from models.project_data import ProjectData
 from models.documentation import Documentation
 from models.workflow_step import WorkflowStep
@@ -22,6 +24,7 @@ from models.workflow_result import WorkflowResult
 
 # Import agents
 from agents.question_generator.question_generator_agent import QuestionGeneratorAgent
+from agents.suggestion_agent.suggestion_agent import SuggestionAgent
 from agents.context_agent.context_agent import ContextAgent
 from agents.architecture_agent.architecture_agent import ArchitectureAgent
 from agents.tech_stack_agent.tech_stack_agent import TechStackAgent
@@ -49,6 +52,7 @@ class WorkflowOrchestrator:
 
         # Initialize agents with appropriate configurations
         self.question_agent = QuestionGeneratorAgent(self.json_config)  # Needs JSON
+        self.suggestion_agent = SuggestionAgent(self.json_config)  # Needs JSON
         self.context_agent = ContextAgent(self.text_config)  # Text generation
         self.architecture_agent = ArchitectureAgent(self.text_config)  # Text generation
         self.tech_stack_agent = TechStackAgent(self.text_config)  # Text generation
@@ -82,6 +86,25 @@ class WorkflowOrchestrator:
 
         logger.info(f"Generated {len(questions.questions)} questions")
         return questions
+
+    async def generate_suggestions(
+        self, suggestion_input: SuggestionInput
+    ) -> Suggestions:
+        """
+        Generate suggested answers to clarifying questions based on project idea.
+
+        Args:
+            suggestion_input: Project idea and questions to answer
+
+        Returns:
+            Suggested answers to questions
+        """
+        logger.info("Generating suggested answers")
+
+        suggestions = await self.suggestion_agent.run(suggestion_input)
+
+        logger.info(f"Generated {len(suggestions.suggested_answers)} suggested answers")
+        return suggestions
 
     async def generate_context(self, project_data: ProjectData) -> Dict[str, str]:
         """Generate context documentation."""

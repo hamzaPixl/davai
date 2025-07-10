@@ -3,9 +3,9 @@ Complete workflow routes.
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import List
 from pathlib import Path
 from models.workflow_result import WorkflowResult
+from models.complete_workflow_request import CompleteWorkflowRequest
 from services.workflow_orchestrator import WorkflowOrchestrator
 from utils.logger import logger
 
@@ -16,20 +16,23 @@ orchestrator = WorkflowOrchestrator()
 
 
 @router.post("/complete", response_model=WorkflowResult)
-async def complete_workflow(project_idea: str, answers: List[str]) -> WorkflowResult:
+async def complete_workflow(request: CompleteWorkflowRequest) -> WorkflowResult:
     """
     Run the complete workflow: generate questions then documentation.
 
     Args:
-        project_idea: Brief description of the project
-        answers: User answers to clarifying questions
+        request: Complete workflow request with project_idea and answers
 
     Returns:
         Complete workflow result with all documentation
     """
     try:
-        logger.info(f"Running complete workflow for project: {project_idea[:100]}...")
-        result = await orchestrator.run_complete_workflow(project_idea, answers)
+        logger.info(
+            f"Running complete workflow for project: {request.project_idea[:100]}..."
+        )
+        result = await orchestrator.run_complete_workflow(
+            request.project_idea, request.answers
+        )
         return result
     except Exception as e:
         logger.error(f"Complete workflow failed: {e}")

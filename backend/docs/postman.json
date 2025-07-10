@@ -49,6 +49,73 @@
       "item": [
         {
           "name": "Complete Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has all required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('final_documentation');",
+                  "    pm.expect(jsonData).to.have.property('project_idea');",
+                  "    pm.expect(jsonData).to.have.property('success');",
+                  "    pm.expect(jsonData).to.have.property('steps');",
+                  "    pm.expect(jsonData).to.have.property('total_duration');",
+                  "});",
+                  "",
+                  "pm.test(\"Workflow completed successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"All documentation files are generated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var docs = jsonData.final_documentation;",
+                  "    ",
+                  "    // Check for required documentation files",
+                  "    var requiredFiles = [",
+                  "        'context.md',",
+                  "        'architecture.md', ",
+                  "        'tech-stack-selection.md',",
+                  "        'TASK_BREAKDOWN.md',",
+                  "        'project-rules.md',",
+                  "        'CLAUDE.md',",
+                  "        'README.md'",
+                  "    ];",
+                  "    ",
+                  "    requiredFiles.forEach(function(file) {",
+                  "        pm.expect(docs).to.have.property(file);",
+                  "        pm.expect(docs[file]).to.be.a('string');",
+                  "        pm.expect(docs[file].length).to.be.greaterThan(100);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Project idea is preserved\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.project_idea).to.be.a('string');",
+                  "    pm.expect(jsonData.project_idea.length).to.be.greaterThan(10);",
+                  "});",
+                  "",
+                  "pm.test(\"All workflow steps completed\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.steps).to.be.an('array');",
+                  "    pm.expect(jsonData.steps.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    jsonData.steps.forEach(function(step) {",
+                  "        pm.expect(step).to.have.property('step_name');",
+                  "        pm.expect(step).to.have.property('success');",
+                  "        pm.expect(step.success).to.be.true;",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -71,6 +138,37 @@
         },
         {
           "name": "List Saved Projects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has projects array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('projects');",
+                  "    pm.expect(jsonData.projects).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Each project has required metadata\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.projects.length > 0) {",
+                  "        jsonData.projects.forEach(function(project) {",
+                  "            pm.expect(project).to.have.property('project_id');",
+                  "            pm.expect(project).to.have.property('project_idea');",
+                  "            pm.expect(project).to.have.property('generated_at');",
+                  "            pm.expect(project).to.have.property('file_count');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -103,10 +201,255 @@
       ]
     },
     {
+      "name": "Test Flow (Step by Step)",
+      "description": "Complete test flow demonstrating the DAVAI workflow step by step",
+      "item": [
+        {
+          "name": "Step 1: Generate Questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has questions\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('questions');",
+                  "    pm.expect(jsonData.questions).to.be.an('array');",
+                  "    pm.expect(jsonData.questions.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "// Store questions for next requests",
+                  "if (pm.response.code === 200) {",
+                  "    var responseData = pm.response.json();",
+                  "    pm.globals.set('generated_questions', JSON.stringify(responseData.questions));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"A real-time chat application for remote teams with file sharing capabilities\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/question-generator/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "question-generator", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Step 2: Generate Suggestions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has suggested answers\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('suggested_answers');",
+                  "    pm.expect(jsonData).to.have.property('reasoning');",
+                  "    pm.expect(jsonData.suggested_answers).to.be.an('array');",
+                  "    pm.expect(jsonData.suggested_answers.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Suggested answers are helpful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    jsonData.suggested_answers.forEach(function(answer) {",
+                  "        pm.expect(answer).to.be.a('string');",
+                  "        pm.expect(answer.length).to.be.greaterThan(5);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A real-time chat application for remote teams with file sharing capabilities\",\n  \"questions\": [\n    \"What type of application do you want to build?\",\n    \"Who is your target audience?\",\n    \"What are the core features you want to include?\",\n    \"What technology stack do you prefer?\",\n    \"What are your scalability requirements?\",\n    \"Do you need real-time features?\",\n    \"What security requirements do you have?\",\n    \"What is your deployment preference?\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/suggestion-agent/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "suggestion-agent", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Step 3: Complete Documentation Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has all documentation files\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('documents');",
+                  "    pm.expect(jsonData).to.have.property('project_id');",
+                  "    pm.expect(jsonData).to.have.property('saved_at');",
+                  "    ",
+                  "    var docs = jsonData.documents;",
+                  "    pm.expect(docs).to.have.property('context.md');",
+                  "    pm.expect(docs).to.have.property('architecture.md');",
+                  "    pm.expect(docs).to.have.property('tech-stack-selection.md');",
+                  "    pm.expect(docs).to.have.property('TASK_BREAKDOWN.md');",
+                  "    pm.expect(docs).to.have.property('project-rules.md');",
+                  "    pm.expect(docs).to.have.property('CLAUDE.md');",
+                  "    pm.expect(docs).to.have.property('README.md');",
+                  "});",
+                  "",
+                  "pm.test(\"Documents contain content\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    Object.values(jsonData.documents).forEach(function(content) {",
+                  "        pm.expect(content).to.be.a('string');",
+                  "        pm.expect(content.length).to.be.greaterThan(50);",
+                  "    });",
+                  "});",
+                  "",
+                  "// Store project ID for retrieval test",
+                  "if (pm.response.code === 200) {",
+                  "    var responseData = pm.response.json();",
+                  "    pm.globals.set('test_project_id', responseData.project_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A real-time chat application for remote teams with file sharing capabilities\",\n  \"answers\": [\n    \"Web application with mobile companion app\",\n    \"Remote teams and distributed organizations\",\n    \"Real-time messaging, file sharing, video calls, team channels\",\n    \"React with TypeScript, Node.js, PostgreSQL, Redis\",\n    \"Should handle 10,000+ concurrent users\",\n    \"Yes, real-time messaging and notifications are critical\",\n    \"End-to-end encryption, GDPR compliance, SSO integration\",\n    \"Cloud deployment with Docker containers on AWS/GCP\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workflow/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workflow", "complete"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Step 4: Verify Saved Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Project files retrieved successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('project_id');",
+                  "    pm.expect(jsonData).to.have.property('documents');",
+                  "    pm.expect(jsonData).to.have.property('metadata');",
+                  "});",
+                  "",
+                  "pm.test(\"Metadata is complete\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var metadata = jsonData.metadata;",
+                  "    pm.expect(metadata).to.have.property('project_idea');",
+                  "    pm.expect(metadata).to.have.property('generated_at');",
+                  "    pm.expect(metadata).to.have.property('file_count');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/workflow/saved-projects/{{test_project_id}}",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "workflow",
+                "saved-projects",
+                "{{test_project_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Agents",
       "item": [
         {
           "name": "Question Generator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has questions array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('questions');",
+                  "    pm.expect(jsonData.questions).to.be.an('array');",
+                  "    pm.expect(jsonData.questions.length).to.be.greaterThan(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Questions are meaningful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    jsonData.questions.forEach(function(question) {",
+                  "        pm.expect(question).to.be.a('string');",
+                  "        pm.expect(question.length).to.be.greaterThan(10);",
+                  "        pm.expect(question).to.include('?');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -123,6 +466,63 @@
               "raw": "{{base_url}}/api/question-generator/generate",
               "host": ["{{base_url}}"],
               "path": ["api", "question-generator", "generate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Suggestion Agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has suggestions and summary\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('suggestions');",
+                  "    pm.expect(jsonData).to.have.property('summary');",
+                  "    pm.expect(jsonData.suggestions).to.be.an('array');",
+                  "    pm.expect(jsonData.suggestions.length).to.be.greaterThan(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Suggestions are actionable and detailed\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    jsonData.suggestions.forEach(function(suggestion) {",
+                  "        pm.expect(suggestion).to.be.a('string');",
+                  "        pm.expect(suggestion.length).to.be.greaterThan(20);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Summary is informative\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.summary).to.be.a('string');",
+                  "    pm.expect(jsonData.summary.length).to.be.greaterThan(50);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_idea\": \"A social media platform for developers to share code snippets and collaborate\",\n  \"questions\": [\n    \"What type of application do you want to build?\",\n    \"Who is your target audience?\",\n    \"What are the core features you want to include?\",\n    \"What technology stack do you prefer?\"\n  ],\n  \"answers\": [\n    \"Web application with mobile responsive design\",\n    \"Individual developers and small development teams\",\n    \"Code snippet sharing, real-time collaboration, version control integration\",\n    \"React for frontend, Node.js for backend, MongoDB for database\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/suggestion-agent/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "suggestion-agent", "generate"]
             }
           },
           "response": []

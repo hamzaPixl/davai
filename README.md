@@ -118,6 +118,7 @@ graph LR
 | Agent                    | Input                  | Output                  | Purpose                                |
 | ------------------------ | ---------------------- | ----------------------- | -------------------------------------- |
 | **Question Generator**   | ProjectIdea            | Questions               | Generates clarifying questions         |
+| **Suggestion Agent**     | ProjectData            | Suggestions             | Provides actionable project guidance   |
 | **Context Agent**        | ProjectData            | context.md              | Creates project background and context |
 | **Architecture Agent**   | ProjectData            | architecture.md         | Designs system architecture            |
 | **Tech Stack Agent**     | ProjectData            | tech-stack-selection.md | Recommends technology stack            |
@@ -163,6 +164,7 @@ result = agent.generate({
 ### Individual Agents
 
 - `POST /api/question-generator/generate`
+- `POST /api/suggestion-agent/generate`
 - `POST /api/context/generate`
 - `POST /api/architecture/generate`
 - `POST /api/tech-stack/generate`

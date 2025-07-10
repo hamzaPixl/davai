@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from routes.workflow_routes import router as workflow_router
 from routes.agents.question_generator_routes import router as question_generator_router
+from routes.agents.suggestion_routes import router as suggestion_router
 from routes.agents.context_routes import router as context_router
 from routes.agents.architecture_routes import router as architecture_router
 from routes.agents.tech_stack_routes import router as tech_stack_router
@@ -73,6 +74,7 @@ def create_app() -> FastAPI:
     # Include all routers
     app.include_router(workflow_router, prefix="/api", tags=["Workflow"])
     app.include_router(question_generator_router, prefix="/api", tags=["Agents"])
+    app.include_router(suggestion_router, prefix="/api", tags=["Agents"])
     app.include_router(context_router, prefix="/api", tags=["Agents"])
     app.include_router(architecture_router, prefix="/api", tags=["Agents"])
     app.include_router(tech_stack_router, prefix="/api", tags=["Agents"])
