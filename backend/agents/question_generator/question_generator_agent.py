@@ -31,12 +31,19 @@ class QuestionGeneratorAgent(BaseAgent[ProjectIdea, Questions]):
 
 Generate 8-10 specific clarifying questions to gather information needed for complete project documentation.
 
-Return your response as a JSON object with this structure:
+IMPORTANT: You must respond with valid JSON only. No additional text or explanations.
+
+Return your response as a JSON object with this exact structure:
 {
   "questions": [
     "Question 1 here?",
     "Question 2 here?",
-    ...
+    "Question 3 here?",
+    "Question 4 here?",
+    "Question 5 here?",
+    "Question 6 here?",
+    "Question 7 here?",
+    "Question 8 here?"
   ]
 }"""
 
@@ -71,6 +78,15 @@ Make each question targeted and specific to this project idea."""
         response = await self._invoke_llm(user_prompt, system_prompt)
 
         try:
+            # Clean the response in case there's extra text
+            response = response.strip()
+
+            # Try to extract JSON if it's wrapped in markdown code blocks
+            if response.startswith("```json"):
+                response = response.split("```json")[1].split("```")[0].strip()
+            elif response.startswith("```"):
+                response = response.split("```")[1].split("```")[0].strip()
+
             response_data = json.loads(response)
             questions = response_data.get("questions", [])
 
@@ -80,6 +96,8 @@ Make each question targeted and specific to this project idea."""
             return Questions(questions=questions)
 
         except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse LLM response as JSON: {e}")
+            raise ValueError(
+                f"Failed to parse LLM response as JSON: {e}. Response was: {response[:200]}..."
+            ) from e
         except Exception as e:
-            raise ValueError(f"Failed to process questions: {e}")
+            raise ValueError(f"Failed to process questions: {e}") from e

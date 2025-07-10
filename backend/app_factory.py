@@ -25,6 +25,13 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting DAVAI POC API server")
 
+    # Validate API keys first
+    from services.llm_factory import validate_api_keys
+
+    if not validate_api_keys():
+        logger.error("❌ API key validation failed - server cannot start")
+        raise RuntimeError("Required API keys are missing")
+
     # Create necessary directories
     settings.temp_storage_path.mkdir(exist_ok=True)
     settings.cache_storage_path.mkdir(exist_ok=True)

@@ -10,7 +10,7 @@ from typing import List, Dict
 from datetime import datetime
 from config.llm_config import LlmConfig
 from config.settings import settings
-from services.llm_factory import get_default_config
+from services.llm_factory import get_json_config, get_text_config
 
 # Import models for type annotations
 from models.project_idea import ProjectIdea
@@ -43,17 +43,23 @@ class WorkflowOrchestrator:
         Args:
             llm_config: Optional LLM configuration. Uses default if not provided.
         """
-        self.llm_config = llm_config or get_default_config()
+        # Use different configurations for different purposes
+        self.json_config = get_json_config()  # GPT-4 for JSON responses
+        self.text_config = get_text_config()  # GPT-3.5-turbo for text generation
 
-        # Initialize all agents
-        self.question_agent = QuestionGeneratorAgent(self.llm_config)
-        self.context_agent = ContextAgent(self.llm_config)
-        self.architecture_agent = ArchitectureAgent(self.llm_config)
-        self.tech_stack_agent = TechStackAgent(self.llm_config)
-        self.task_breakdown_agent = TaskBreakdownAgent(self.llm_config)
-        self.project_rules_agent = ProjectRulesAgent(self.llm_config)
-        self.claude_guide_agent = ClaudeGuideAgent(self.llm_config)
-        self.readme_agent = ReadmeAgent(self.llm_config)
+        # Initialize agents with appropriate configurations
+        self.question_agent = QuestionGeneratorAgent(self.json_config)  # Needs JSON
+        self.context_agent = ContextAgent(self.text_config)  # Text generation
+        self.architecture_agent = ArchitectureAgent(self.text_config)  # Text generation
+        self.tech_stack_agent = TechStackAgent(self.text_config)  # Text generation
+        self.task_breakdown_agent = TaskBreakdownAgent(
+            self.text_config
+        )  # Text generation
+        self.project_rules_agent = ProjectRulesAgent(
+            self.text_config
+        )  # Text generation
+        self.claude_guide_agent = ClaudeGuideAgent(self.text_config)  # Text generation
+        self.readme_agent = ReadmeAgent(self.text_config)  # Text generation
 
         # Initialize output directory
         self.output_dir = settings.temp_storage_path / "generated_docs"
