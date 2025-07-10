@@ -1,59 +1,59 @@
-# DAVAI - AI Documentation Gene### Generate Complete Documentation
+# DAVAI - AI Documentation Generator
 
-```bash
-curl -X POST "http://localhost:8000/api/workflow/complete" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_idea": "A social media platform for developers",
-    "answers": [
-      "Web application",
-      "Individual developers",
-      "Real-time collaboration needed"
-    ]
-  }'
+DAVAI (Documentation AI) is an AI-powered system that transforms a simple project idea into comprehensive documentation using specialized AI agents.
+
+## 🚀 What DAVAI Does
+
+Transform this:
+
+```text
+"A social media platform for developers"
 ```
 
-## Test with Postman
+Into complete project documentation:
 
-Download and import the [Postman Collection](backend/docs/postman.json) for comprehensive API testing.
+- Project context and requirements
+- System architecture design
+- Technology stack recommendations  
+- Task breakdown and timelines
+- Development guidelines
+- AI integration guide
+- Production-ready README
 
-## Generated Documentation Files
+## 🎯 Key Features
 
-All generated documentation is automatically saved to `backend/temp/generated_docs/` with the following structure:
+- **8 Specialized AI Agents** - Each focused on specific documentation types
+- **Complete Workflow** - From idea to full documentation in minutes
+- **Multi-LLM Support** - OpenAI, Anthropic, Google providers
+- **Auto-Save** - Generated docs saved to organized folders
+- **REST API** - Easy integration and automation
 
-````text
-backend/temp/generated_docs/
-└── {project_name}_{timestamp}/
-    ├── context.md
-    ├── architecture.md
-    ├── tech-stack-selection.md
-    ├── TASK_BREAKDOWN.md
-    ├── project-rules.md
-    ├── CLAUDE.md
-    ├── README.md
-    └── metadata.json
-```umentation AI) is a modular, agent-based system that generates comprehensive project documentation from a simple project idea using specialized AI agents.
+## 📦 Repository Structure
 
-## Table of Contents
+```text
+davai/
+├── README.md              # This overview (you are here)
+├── backend/               # DAVAI API server
+│   ├── README.md         # 📖 Detailed documentation & setup
+│   ├── agents/           # 8 specialized AI agents
+│   ├── models/           # Data models
+│   ├── routes/           # API endpoints
+│   └── docs/             # API documentation & Postman collection
+├── prompts/              # Agent prompt templates
+└── templates/            # Documentation templates
+```
 
-- [Quick Start](#quick-start)
-- [Workflow Summary](#workflow-summary)
-- [Agents](#agents)
-- [API Usage](#api-usage)
-- [Architecture](#architecture)
+## 🏃‍♂️ Quick Start
 
-## Quick Start
-
-### Prerequisites
+### 1. Setup Environment
 
 ```bash
-# Set environment variables
-export OPENAI_API_KEY=your_openai_key
-export ANTHROPIC_API_KEY=your_anthropic_key
-export GOOGLE_API_KEY=your_google_key
-````
+export OPENAI_API_KEY=your_key
+export ANTHROPIC_API_KEY=your_key  
+export GOOGLE_API_KEY=your_key
+```
 
-### Start the Backend
+### 2. Start DAVAI
 
 ```bash
 cd backend
@@ -61,158 +61,38 @@ chmod +x start.sh
 ./start.sh
 ```
 
-### Generate Complete Documentation
+### 3. Generate Documentation
 
 ```bash
 curl -X POST "http://localhost:8000/api/workflow/complete" \
   -H "Content-Type: application/json" \
   -d '{
-    "project_idea": "A social media platform for developers",
-    "answers": [
-      "Web application",
-      "Individual developers",
-      "Real-time collaboration needed"
-    ]
+    "project_idea": "Personal fitness coaching app",
+    "answers": ["Mobile app", "Fitness enthusiasts", "Real-time tracking"]
   }'
 ```
 
-**📁 Generated files are automatically saved to `backend/temp/generated_docs/`**
+**📁 Generated documentation automatically saved to `backend/temp/generated_docs/`**
 
-### Browse Generated Projects
+## 📖 Detailed Documentation
 
-```bash
-# List all saved projects
-curl http://localhost:8000/api/workflow/saved-projects
+For comprehensive documentation, API reference, agent details, and advanced usage:
 
-# Get specific project files
-curl http://localhost:8000/api/workflow/saved-projects/{project_folder_name}
-```
+**👉 [Complete Documentation - backend/README.md](backend/README.md)**
 
-## Workflow Summary
+## 🧪 Testing
 
-```mermaid
-graph LR
-    A[Project Idea] --> B[Question Generator]
-    B --> C[User Answers]
-    C --> D[ProjectData]
+- **Interactive API Docs**: <http://localhost:8000/docs>
+- **Postman Collection**: [backend/docs/postman.json](backend/docs/postman.json)
+- **Health Check**: <http://localhost:8000/health>
 
-    D --> E[Context Agent]
-    D --> F[Architecture Agent]
-    D --> G[Tech Stack Agent]
-    D --> H[Task Breakdown Agent]
-    D --> I[Project Rules Agent]
-    D --> J[Claude Guide Agent]
+## 🔗 Quick Links
 
-    E --> K[README Agent]
-    F --> K
-    G --> K
-    H --> K
-    I --> K
-    J --> K
-
-    K --> L[Complete Documentation]
-```
-
-## Agents
-
-| Agent                    | Input                  | Output                  | Purpose                                |
-| ------------------------ | ---------------------- | ----------------------- | -------------------------------------- |
-| **Question Generator**   | ProjectIdea            | Questions               | Generates clarifying questions         |
-| **Suggestion Agent**     | ProjectData            | Suggestions             | Provides actionable project guidance   |
-| **Context Agent**        | ProjectData            | context.md              | Creates project background and context |
-| **Architecture Agent**   | ProjectData            | architecture.md         | Designs system architecture            |
-| **Tech Stack Agent**     | ProjectData            | tech-stack-selection.md | Recommends technology stack            |
-| **Task Breakdown Agent** | ProjectData            | TASK_BREAKDOWN.md       | Creates project task breakdown         |
-| **Project Rules Agent**  | ProjectData            | project-rules.md        | Establishes coding standards           |
-| **Claude Guide Agent**   | ProjectData            | CLAUDE.md               | Creates AI development guide           |
-| **README Agent**         | ProjectData + All Docs | README.md               | Generates comprehensive README         |
-
-### Agent Parameters
-
-Each agent accepts:
-
-- **Input**: `ProjectData(project_idea: str, questions: List[str], answers: List[str])`
-- **Configuration**: `LlmConfig(provider: str, model: str, temperature: float, max_tokens: int)`
-- **Output**: Generated markdown documentation
-
-### Usage Example
-
-```python
-from agents.context_agent import ContextAgent
-
-agent = ContextAgent()
-result = agent.generate({
-    "project_idea": "Social media platform for developers",
-    "questions": ["What type of application?"],
-    "answers": ["Web application"]
-})
-```
-
-## API Usage
-
-### System Health & Status
-
-- `GET /health` - Basic health check
-- `GET /status` - System status with service information (JSON)
-
-### Complete Workflow
-
-- `POST /api/workflow/complete` - Full documentation generation (saves files automatically)
-- `GET /api/workflow/saved-projects` - List all saved documentation projects
-- `GET /api/workflow/saved-projects/{project_name}` - Get specific project files
-
-### Individual Agents
-
-- `POST /api/question-generator/generate`
-- `POST /api/suggestion-agent/generate`
-- `POST /api/context/generate`
-- `POST /api/architecture/generate`
-- `POST /api/tech-stack/generate`
-- `POST /api/task-breakdown/generate`
-- `POST /api/project-rules/generate`
-- `POST /api/claude-guide/generate`
-- `POST /api/readme/generate`
-
-### Documentation & Testing
-
-- `GET /docs` - Interactive API documentation (Swagger UI)
-- `GET /docs/postman.json` - Postman collection download
-- **[📁 Postman Collection](backend/docs/postman.json)** - Import for comprehensive API testing
-
-## Architecture
-
-### Key Features
-
-- **8 Specialized Agents**: Each focused on specific documentation type
-- **Flexible Workflows**: Complete and partial documentation generation
-- **Parallel Execution**: Efficient processing through concurrent agent execution
-- **Modular Design**: Easy to extend with new agents
-- **Multi-LLM Support**: OpenAI, Anthropic, Google providers
-
-### Data Models
-
-```python
-# Input Models
-ProjectIdea(idea: str, description: str)
-Questions(questions: List[str])
-ProjectData(project_idea: str, questions: List[str], answers: List[str])
-
-# Output Models
-Documentation(documents: Dict[str, str])
-WorkflowResult(project_idea: str, steps: List[WorkflowStep], success: bool)
-```
-
-### Configuration
-
-```python
-LlmConfig(
-    provider="openai",      # openai, anthropic, google
-    model="gpt-4",         # Model name
-    temperature=0.7,       # Creativity level
-    max_tokens=2000       # Response length limit
-)
-```
+- [Backend Setup & API Reference](backend/README.md)
+- [Agent Documentation](backend/README.md#agents)  
+- [API Endpoints](backend/README.md#api-usage)
+- [Postman Collection](backend/docs/postman.json)
 
 ---
 
-_DAVAI enables rapid project documentation generation through AI-powered specialized agents, supporting autonomous development workflows._
+_Transform project ideas into production-ready documentation with AI-powered agents._
