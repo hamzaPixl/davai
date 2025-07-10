@@ -14,7 +14,7 @@ Into complete project documentation:
 
 - Project context and requirements
 - System architecture design
-- Technology stack recommendations  
+- Technology stack recommendations
 - Task breakdown and timelines
 - Development guidelines
 - AI integration guide
@@ -49,7 +49,7 @@ davai/
 
 ```bash
 export OPENAI_API_KEY=your_key
-export ANTHROPIC_API_KEY=your_key  
+export ANTHROPIC_API_KEY=your_key
 export GOOGLE_API_KEY=your_key
 ```
 
@@ -89,7 +89,7 @@ For comprehensive documentation, API reference, agent details, and advanced usag
 ## 🔗 Quick Links
 
 - [Backend Setup & API Reference](backend/README.md)
-- [Agent Documentation](backend/README.md#agents)  
+- [Agent Documentation](backend/README.md#agents)
 - [API Endpoints](backend/README.md#api-usage)
 - [Postman Collection](backend/docs/postman.json)
 

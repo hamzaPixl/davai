@@ -1,0 +1,15 @@
+{
+  "project_idea": "Personal character coach for fitness covering all aspects",
+  "generated_at": "2025-07-10T04:01:07.396278",
+  "total_documents": 7,
+  "document_list": [
+    "context.md",
+    "architecture.md",
+    "tech-stack-selection.md",
+    "TASK_BREAKDOWN.md",
+    "project-rules.md",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "output_path": "temp/generated_docs/personal_character_coach_for_fitness_covering_all_20250710_040107"
+}
