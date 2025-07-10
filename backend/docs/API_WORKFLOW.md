@@ -64,37 +64,19 @@ http://localhost:8000/api
 }
 ```
 
-### 2. Generate All Documentation
+### 2. Health Check
 
-**Endpoint**: `POST /workflow/generate-all-documentation`
+**Endpoint**: `GET /workflow/health`
 
-**Description**: Generates all documentation types in sequential dependency order given existing project data. Each agent builds upon the outputs of previous agents.
+**Description**: Checks the health status of the workflow service.
 
-**Sequential Execution Order**:
-
-1. Context Agent (standalone)
-2. Architecture Agent (with context)
-3. Tech Stack Agent (with context + architecture)
-4. Task Breakdown Agent (with context + architecture + tech stack)
-5. Project Rules Agent (with all previous outputs)
-6. Claude Guide Agent (with all previous outputs)
-7. README Agent (with all previous outputs)
-
-**Request Body**:
+**Response**:
 
 ```json
 {
-  "project_idea": "A social media platform for developers",
-  "questions": [
-    "What type of application are you building?",
-    "Who is your target audience?",
-    "What are the key features you need?"
-  ],
-  "answers": [
-    "Web application with mobile responsive design",
-    "Individual developers and small teams",
-    "Real-time collaboration features needed"
-  ]
+  "status": "healthy",
+  "message": "DAVAI POC Workflow API is running",
+  "version": "0.1.0"
 }
 ```
 
@@ -111,22 +93,6 @@ http://localhost:8000/api
     "CLAUDE.md": "# AI Development Guide\n...",
     "README.md": "# Developer Social Platform\n..."
   }
-}
-```
-
-### 3. Health Check
-
-**Endpoint**: `GET /workflow/health`
-
-**Description**: Checks the health status of the workflow service.
-
-**Response**:
-
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-07-10T14:30:00Z",
-  "version": "1.0.0"
 }
 ```
 
@@ -350,58 +316,8 @@ sequenceDiagram
     API-->>Client: Complete documentation package
 ```
 
-### Sequential Documentation Generation
+## Configuration
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant API
-    participant Context
-    participant Architecture
-    participant TechStack
-    participant TaskBreakdown
-    participant ProjectRules
-    participant ClaudeGuide
-    participant README
-
-    Client->>API: POST /workflow/generate-all-documentation
-
-    Note over API: Sequential Execution with Dependency Chain
-
-    API->>Context: 1. Generate context
-    Context-->>API: context.md
-
-    API->>Architecture: 2. Generate architecture (enhanced with context)
-    Architecture-->>API: architecture.md
-
-    API->>TechStack: 3. Generate tech stack (enhanced with context + arch)
-    TechStack-->>API: tech-stack-selection.md
-
-    API->>TaskBreakdown: 4. Generate tasks (enhanced with context + arch + tech)
-    TaskBreakdown-->>API: TASK_BREAKDOWN.md
-
-    API->>ProjectRules: 5. Generate rules (enhanced with all previous)
-    ProjectRules-->>API: project-rules.md
-
-    API->>ClaudeGuide: 6. Generate guide (enhanced with all previous)
-    ClaudeGuide-->>API: CLAUDE.md
-
-    API->>README: 7. Generate README (enhanced with all previous)
-    README-->>API: README.md
-
-    API-->>Client: Complete documentation package
-
-    par Context Agent
-        API->>Agents: Generate context
-    and Architecture Agent
-        API->>Agents: Generate architecture
-    and Tech Stack Agent
-        API->>Agents: Generate tech stack
-    and Task Breakdown Agent
-        API->>Agents: Generate tasks
-    and Project Rules Agent
-        API->>Agents: Generate rules
-    and Claude Guide Agent
         API->>Agents: Generate guide
     and README Agent
         API->>Agents: Generate README
@@ -409,7 +325,8 @@ sequenceDiagram
 
     Agents-->>API: All documentation
     API-->>Client: Complete documentation package
-```
+
+````
 
 ## Configuration
 
@@ -424,7 +341,7 @@ Agents can be configured with different LLM providers:
   "temperature": 0.7,
   "max_tokens": 2000
 }
-```
+````
 
 Supported providers:
 

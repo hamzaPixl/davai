@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from models.project_idea import ProjectIdea
 from models.questions import Questions
-from models.documentation import Documentation
 from models.workflow_result import WorkflowResult
 from services.workflow_orchestrator import WorkflowOrchestrator
 from utils.logger import logger
@@ -35,40 +34,6 @@ async def complete_workflow(project_idea: str, answers: List[str]) -> WorkflowRe
         return result
     except Exception as e:
         logger.error(f"Complete workflow failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-
-@router.post("/generate-all-documentation", response_model=Documentation)
-async def generate_all_documentation(
-    project_idea: str, questions: List[str], answers: List[str]
-) -> Documentation:
-    """
-    Generate complete project documentation using all agents.
-
-    Args:
-        project_idea: Brief description of the project
-        questions: List of clarifying questions
-        answers: User answers to the questions
-
-    Returns:
-        Generated project documentation
-    """
-    try:
-        logger.info(f"Generating documentation for project: {project_idea[:100]}...")
-
-        if len(questions) != len(answers):
-            raise HTTPException(
-                status_code=400, detail="Number of questions and answers must match"
-            )
-
-        documentation = await orchestrator.generate_all_documentation(
-            project_idea, questions, answers
-        )
-        return documentation
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to generate documentation: {e}")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
